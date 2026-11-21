@@ -1,1 +1,55 @@
 
+name: Compilar Meteor Cafe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar arquivos
+        uses: actions/checkout@v4
+
+      - name: Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar ferramentas Android
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-37" "build-tools;37.0.0" "ndk;29.0.14206865"
+
+      - name: Extrair projeto
+        run: |
+          unzip -q METEOR_CAFE_APK_DEDICADO_FONTE.zip -d work
+          echo "PROJECT_DIR=$GITHUB_WORKSPACE/work/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader" >> "$GITHUB_ENV"
+
+      - name: Recuperar biblioteca de áudio
+        run: |
+          git clone --depth 1 https://github.com/schellingb/TinySoundFont.git "$PROJECT_DIR/app/src/main/cpp/mmapi_tsf/TinySoundFont"
+          test -f "$PROJECT_DIR/app/src/main/cpp/mmapi_tsf/TinySoundFont/tsf.h"
+
+      - name: Compilar Meteor Café
+        working-directory: work/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon :app:assembleMeteorDebug
+
+      - name: Disponibilizar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Meteor-Cafe-APK
+          path: work/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader/app/build/outputs/apk/meteor/debug/*.apk
+          if-no-files-found: error
+          retention-days: 7
+
