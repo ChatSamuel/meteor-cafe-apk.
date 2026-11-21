@@ -1,8 +1,10 @@
-
 name: Compilar Meteor Cafe
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -24,31 +26,38 @@ jobs:
       - name: Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Instalar ferramentas Android
+      - name: Aceitar licenças e instalar ferramentas
         run: |
-          yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-37" "build-tools;37.0.0" "ndk;29.0.14206865"
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Extrair projeto
         run: |
           unzip -q METEOR_CAFE_APK_DEDICADO_FONTE.zip -d work
-          echo "PROJECT_DIR=$GITHUB_WORKSPACE/work/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader" >> "$GITHUB_ENV"
+          mkdir -p work/METEOR_CAFE_APK_DEDICADO/vendor
+          mv work/J2ME-Loader work/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader 2>/dev/null || true
 
       - name: Recuperar biblioteca de áudio
         run: |
+          PROJECT_DIR="$(find work -type d -name J2ME-Loader | head -n 1)"
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "J2ME-Loader não encontrado."
+            exit 1
+          fi
+          mkdir -p "$PROJECT_DIR/app/src/main/cpp/mmapi_tsf/TinySoundFont"
           git clone --depth 1 https://github.com/schellingb/TinySoundFont.git "$PROJECT_DIR/app/src/main/cpp/mmapi_tsf/TinySoundFont"
-          test -f "$PROJECT_DIR/app/src/main/cpp/mmapi_tsf/TinySoundFont/tsf.h"
 
       - name: Compilar Meteor Café
-        working-directory: work/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader
         run: |
+          PROJECT_DIR="$(find work -type d -name J2ME-Loader | head -n 1)"
+          cd "$PROJECT_DIR"
           chmod +x gradlew
-          ./gradlew --no-daemon :app:assembleMeteorDebug
+          ./gradlew --no-daemon :app:assemblemeteorDebug
 
       - name: Disponibilizar APK
         uses: actions/upload-artifact@v4
         with:
           name: Meteor-Cafe-APK
-          path: work/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader/app/build/outputs/apk/meteor/debug/*.apk
+          path: work/**/J2ME-Loader/app/build/outputs/apk/
           if-no-files-found: error
           retention-days: 7
