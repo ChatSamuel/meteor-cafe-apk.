@@ -16,12 +16,34 @@ jobs:
       - name: Baixar arquivos do repositorio
         uses: actions/checkout@v7.0.1
 
+      - name: Extrair projeto dedicado
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ZIP_FILE="$GITHUB_WORKSPACE/METEOR_CAFE_APK_DEDICADO_FONTE.zip"
+          test -f "$ZIP_FILE"
+
+          unzip -q "$ZIP_FILE" -d "$GITHUB_WORKSPACE/work"
+
+          PROJECT_DIR="$GITHUB_WORKSPACE/work/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader"
+
+          test -f "$PROJECT_DIR/gradlew"
+          test -f "$PROJECT_DIR/build.gradle"
+          test -f "$PROJECT_DIR/app/build.gradle"
+          test -f "$PROJECT_DIR/gradle/wrapper/gradle-wrapper.properties"
+
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Projeto extraido e conferido: $PROJECT_DIR"
+
       - name: Preparar Java 21
         uses: actions/setup-java@v6.3.0
         with:
           distribution: temurin
           java-version: '21'
-          cache: gradle
+          # Cache do Gradle desativado intencionalmente.
+          # O projeto estava dentro do ZIP e nao existia na raiz no momento
+          # em que setup-java tentava localizar os arquivos para o cache.
 
       - name: Preparar Android SDK
         uses: android-actions/setup-android@v4.0.4
@@ -41,11 +63,11 @@ jobs:
             exit 1
           fi
 
-          echo "Consultando pacotes Android incluindo o canal de preview..."
+          echo "Consultando pacotes Android incluindo o canal preview..."
           sdkmanager --list --channel=3 > "$RUNNER_TEMP/android-sdk-packages.txt"
 
           if ! grep -Eq 'platforms;android-37([[:space:]]|$)' "$RUNNER_TEMP/android-sdk-packages.txt"; then
-            echo "A plataforma platforms;android-37 nao apareceu nem no canal de preview."
+            echo "A plataforma platforms;android-37 nao apareceu no catalogo do canal preview."
             grep -i 'android-37\|Cinnamon Bun' "$RUNNER_TEMP/android-sdk-packages.txt" || true
             exit 1
           fi
@@ -70,18 +92,6 @@ jobs:
           test -d "$SDK_ROOT/build-tools/${BUILD_TOOLS_PACKAGE#build-tools;}"
           test -d "$SDK_ROOT/ndk/29.0.14206865"
           echo "Android SDK, Build Tools e NDK instalados e conferidos."
-
-      - name: Extrair projeto dedicado
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f METEOR_CAFE_APK_DEDICADO_FONTE.zip
-          unzip -q METEOR_CAFE_APK_DEDICADO_FONTE.zip -d work
-          PROJECT_DIR="$GITHUB_WORKSPACE/work/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader"
-          test -f "$PROJECT_DIR/gradlew"
-          test -f "$PROJECT_DIR/app/build.gradle"
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "Projeto encontrado em: $PROJECT_DIR"
 
       - name: Conferir JAR original incorporado
         shell: bash
