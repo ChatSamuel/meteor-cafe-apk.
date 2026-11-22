@@ -1,4 +1,4 @@
-name: Compilar Meteor Cafe — V8
+name: Compilar Meteor Cafe — V9
 
 "on":
   workflow_dispatch:
@@ -16,19 +16,48 @@ jobs:
       - name: Baixar arquivos do repositorio
         uses: actions/checkout@v7.0.1
 
-      - name: Extrair projeto dedicado
+      - name: Localizar e extrair projeto dedicado (ZIP individual ou kit)
         shell: bash
         run: |
           set -euo pipefail
 
-          ZIP_FILE="$GITHUB_WORKSPACE/METEOR_CAFE_APK_DEDICADO_FONTE_GALAXY_A05_V8_UPLOAD.zip"
-          test -f "$ZIP_FILE"
+          WORK_DIR="$GITHUB_WORKSPACE/work"
+          BUNDLE_DIR="$RUNNER_TEMP/meteor-cafe-v9-kit"
+          SOURCE_ZIP_NAME="METEOR_CAFE_APK_DEDICADO_FONTE_GALAXY_A05_V8_UPLOAD.zip"
+          SOURCE_ZIP="$GITHUB_WORKSPACE/$SOURCE_ZIP_NAME"
+          KIT_ZIP="$GITHUB_WORKSPACE/METEOR_CAFE_V8_KIT.zip"
 
-          mkdir -p "$GITHUB_WORKSPACE/work"
-          unzip -q "$ZIP_FILE" -d "$GITHUB_WORKSPACE/work"
+          mkdir -p "$WORK_DIR"
 
-          PROJECT_DIR="$GITHUB_WORKSPACE/work/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader"
+          if [ -f "$SOURCE_ZIP" ]; then
+            echo "Arquivo-fonte individual encontrado na raiz."
+            PROJECT_ARCHIVE="$SOURCE_ZIP"
+          elif [ -f "$KIT_ZIP" ]; then
+            echo "Kit V8 encontrado na raiz. Extraindo o pacote externo..."
+            rm -rf "$BUNDLE_DIR"
+            mkdir -p "$BUNDLE_DIR"
+            unzip -tq "$KIT_ZIP"
+            unzip -q "$KIT_ZIP" -d "$BUNDLE_DIR"
 
+            PROJECT_ARCHIVE="$(find "$BUNDLE_DIR" -type f -name "$SOURCE_ZIP_NAME" -print -quit)"
+            if [ -z "$PROJECT_ARCHIVE" ]; then
+              echo "::error::O kit foi encontrado, mas nao contem $SOURCE_ZIP_NAME."
+              echo "Arquivos encontrados dentro do kit:"
+              find "$BUNDLE_DIR" -maxdepth 3 -type f -print || true
+              exit 1
+            fi
+            echo "Arquivo-fonte interno localizado: $PROJECT_ARCHIVE"
+          else
+            echo "::error::Nao encontrei o ZIP V8 individual nem METEOR_CAFE_V8_KIT.zip na raiz."
+            echo "Arquivos ZIP presentes na raiz:"
+            find "$GITHUB_WORKSPACE" -maxdepth 1 -type f -iname '*.zip' -printf '%f\\n' || true
+            exit 1
+          fi
+
+          unzip -tq "$PROJECT_ARCHIVE"
+          unzip -q "$PROJECT_ARCHIVE" -d "$WORK_DIR"
+
+          PROJECT_DIR="$WORK_DIR/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader"
           test -f "$PROJECT_DIR/gradlew"
           test -f "$PROJECT_DIR/build.gradle"
           test -f "$PROJECT_DIR/app/build.gradle"
@@ -42,8 +71,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-          # O cache do Gradle fica desativado: o projeto vem dentro do ZIP.
-          # Assim evitamos procurar arquivos Gradle antes de extraí-lo.
 
       - name: Preparar Android SDK
         uses: android-actions/setup-android@v4.0.4
@@ -64,19 +91,16 @@ jobs:
           fi
 
           PACKAGE_LIST="$RUNNER_TEMP/android-sdk-packages.txt"
-
-          echo "Consultando os pacotes do SDK, incluindo o canal preview..."
+          echo "Consultando pacotes do SDK, incluindo o canal preview..."
           sdkmanager --list --channel=3 > "$PACKAGE_LIST"
 
-          PLATFORM_PACKAGE="$(
-            awk -F'|' '
-              {
-                package=$1
-                gsub(/^[[:space:]]+|[[:space:]]+$/, "", package)
-                if (package ~ /^platforms;android-37\.[0-9]+$/) print package
-              }
-            ' "$PACKAGE_LIST" | sort -V | tail -n 1
-          )"
+          PLATFORM_PACKAGE="$(awk -F'|' '
+            {
+              package=$1
+              gsub(/^[[:space:]]+|[[:space:]]+$/, "", package)
+              if (package ~ /^platforms;android-37\.[0-9]+$/) print package
+            }
+          ' "$PACKAGE_LIST" | sort -V | tail -n 1)"
 
           if [ -z "$PLATFORM_PACKAGE" ]; then
             echo "::error::Nenhum pacote platforms;android-37.x estavel foi encontrado."
@@ -84,15 +108,13 @@ jobs:
             exit 1
           fi
 
-          BUILD_TOOLS_PACKAGE="$(
-            awk -F'|' '
-              {
-                package=$1
-                gsub(/^[[:space:]]+|[[:space:]]+$/, "", package)
-                if (package ~ /^build-tools;[0-9]+\.[0-9]+\.[0-9]+$/) print package
-              }
-            ' "$PACKAGE_LIST" | sort -V | tail -n 1
-          )"
+          BUILD_TOOLS_PACKAGE="$(awk -F'|' '
+            {
+              package=$1
+              gsub(/^[[:space:]]+|[[:space:]]+$/, "", package)
+              if (package ~ /^build-tools;[0-9]+\.[0-9]+\.[0-9]+$/) print package
+            }
+          ' "$PACKAGE_LIST" | sort -V | tail -n 1)"
 
           if [ -z "$BUILD_TOOLS_PACKAGE" ]; then
             echo "::error::Nenhum pacote Build Tools estavel foi encontrado."
@@ -102,14 +124,14 @@ jobs:
 
           NDK_PACKAGE="ndk;29.0.14206865"
           if ! grep -Fq "$NDK_PACKAGE" "$PACKAGE_LIST"; then
-            echo "::error::O NDK exigido pelo projeto nao apareceu no catalogo: $NDK_PACKAGE"
+            echo "::error::NDK exigido nao encontrado: $NDK_PACKAGE"
             grep -i 'ndk;29' "$PACKAGE_LIST" || true
             exit 1
           fi
 
-          echo "Plataforma selecionada: $PLATFORM_PACKAGE"
-          echo "Build Tools selecionadas: $BUILD_TOOLS_PACKAGE"
-          echo "NDK selecionado: $NDK_PACKAGE"
+          echo "Plataforma: $PLATFORM_PACKAGE"
+          echo "Build Tools: $BUILD_TOOLS_PACKAGE"
+          echo "NDK: $NDK_PACKAGE"
 
           sdkmanager --channel=3 \
             "$PLATFORM_PACKAGE" \
@@ -123,9 +145,6 @@ jobs:
           test -d "$SDK_ROOT/build-tools/$BUILD_TOOLS_DIR"
           test -f "$SDK_ROOT/ndk/29.0.14206865/source.properties"
 
-          echo "SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
-          echo "PLATFORM_PACKAGE=$PLATFORM_PACKAGE" >> "$GITHUB_ENV"
-          echo "BUILD_TOOLS_PACKAGE=$BUILD_TOOLS_PACKAGE" >> "$GITHUB_ENV"
           echo "Instalacao Android conferida com sucesso."
 
       - name: Conferir JAR ajustado e copia original preservada
@@ -134,27 +153,25 @@ jobs:
           set -euo pipefail
 
           JAR="$PROJECT_DIR/app/src/main/assets/games/meteor_cafe.jar"
-          test -f "$JAR"
-
-          echo "99d91a52fc3b4fc0340b6761639aacd98de6b3c5e5bfdce0dab991047c00910a  $JAR" | sha256sum --check
-          echo "JAR do aplicativo localizado e verificado."
           ORIGINAL_JAR="$GITHUB_WORKSPACE/work/METEOR_CAFE_APK_DEDICADO/original/meteor_cafe_original.jar"
+
+          test -f "$JAR"
+          echo "99d91a52fc3b4fc0340b6761639aacd98de6b3c5e5bfdce0dab991047c00910a  $JAR" | sha256sum --check
+
           test -f "$ORIGINAL_JAR"
           echo "a621bf0e11046aabb4ddcaa9c0c3d3a3aefa9340a415c2ce690ef977a394f8c6  $ORIGINAL_JAR" | sha256sum --check
-          echo "Copia original intacta verificada."
+
+          echo "JAR ajustado e copia original verificados."
 
       - name: Restaurar biblioteca de audio MIDI
         shell: bash
         run: |
           set -euo pipefail
-
           SUBMODULE="$PROJECT_DIR/app/src/main/cpp/mmapi_tsf/TinySoundFont"
           rm -rf "$SUBMODULE"
           mkdir -p "$(dirname "$SUBMODULE")"
-
           git clone --depth 1 https://github.com/schellingb/TinySoundFont.git "$SUBMODULE"
           test -f "$SUBMODULE/tsf.h"
-
           echo "Biblioteca TinySoundFont restaurada."
 
       - name: Conferir versoes do Gradle e Java
@@ -177,17 +194,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           APK_DIR="$PROJECT_DIR/app/build/outputs/apk/meteor/debug"
           test -d "$APK_DIR"
-
           APK_FILE="$(find "$APK_DIR" -maxdepth 1 -type f -name '*.apk' -print -quit)"
           if [ -z "$APK_FILE" ]; then
-            echo "::error::A compilacao terminou sem produzir um APK na pasta esperada."
-            find "$PROJECT_DIR/app/build/outputs/apk" -type f -maxdepth 5 -print || true
+            echo "::error::A compilacao terminou sem produzir APK na pasta esperada."
+            find "$PROJECT_DIR/app/build/outputs/apk" -maxdepth 5 -type f -print || true
             exit 1
           fi
-
           echo "APK produzido: $APK_FILE"
           sha256sum "$APK_FILE"
           ls -lh "$APK_FILE"
@@ -195,7 +209,7 @@ jobs:
       - name: Disponibilizar APK para download
         uses: actions/upload-artifact@v6
         with:
-          name: Meteor-Cafe-APK-V8-debug
+          name: Meteor-Cafe-APK-V9-debug
           path: work/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader/app/build/outputs/apk/meteor/debug/*.apk
           if-no-files-found: error
           retention-days: 7
