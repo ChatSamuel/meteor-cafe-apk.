@@ -21,7 +21,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          ZIP_FILE="$GITHUB_WORKSPACE/METEOR_CAFE_APK_DEDICADO_FONTE.zip"
+          ZIP_FILE="$GITHUB_WORKSPACE/METEOR_CAFE_APK_DEDICADO_FONTE_GALAXY_A05.zip"
           test -f "$ZIP_FILE"
 
           mkdir -p "$GITHUB_WORKSPACE/work"
@@ -128,7 +128,7 @@ jobs:
           echo "BUILD_TOOLS_PACKAGE=$BUILD_TOOLS_PACKAGE" >> "$GITHUB_ENV"
           echo "Instalacao Android conferida com sucesso."
 
-      - name: Conferir JAR original incorporado
+      - name: Conferir JAR ajustado e copia original preservada
         shell: bash
         run: |
           set -euo pipefail
@@ -136,8 +136,12 @@ jobs:
           JAR="$PROJECT_DIR/app/src/main/assets/games/meteor_cafe.jar"
           test -f "$JAR"
 
-          echo "a621bf0e11046aabb4ddcaa9c0c3d3a3aefa9340a415c2ce690ef977a394f8c6  $JAR" | sha256sum --check
-          echo "JAR original localizado e verificado."
+          echo "81b4bc734c18406bcfe250846157dd0b84ab6cb29712f76c1a636a850fce1d3a  $JAR" | sha256sum --check
+          echo "JAR do aplicativo localizado e verificado."
+          ORIGINAL_JAR="$GITHUB_WORKSPACE/work/METEOR_CAFE_APK_DEDICADO/original/meteor_cafe_original.jar"
+          test -f "$ORIGINAL_JAR"
+          echo "a621bf0e11046aabb4ddcaa9c0c3d3a3aefa9340a415c2ce690ef977a394f8c6  $ORIGINAL_JAR" | sha256sum --check
+          echo "Copia original intacta verificada."
 
       - name: Restaurar biblioteca de audio MIDI
         shell: bash
