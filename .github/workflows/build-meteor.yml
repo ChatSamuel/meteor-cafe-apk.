@@ -1,4 +1,4 @@
-name: Compilar Meteor Cafe
+name: Compilar Meteor Cafe — V8
 
 "on":
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          ZIP_FILE="$GITHUB_WORKSPACE/METEOR_CAFE_APK_DEDICADO_FONTE_GALAXY_A05.zip"
+          ZIP_FILE="$GITHUB_WORKSPACE/METEOR_CAFE_APK_DEDICADO_FONTE_GALAXY_A05_V8_UPLOAD.zip"
           test -f "$ZIP_FILE"
 
           mkdir -p "$GITHUB_WORKSPACE/work"
@@ -136,7 +136,7 @@ jobs:
           JAR="$PROJECT_DIR/app/src/main/assets/games/meteor_cafe.jar"
           test -f "$JAR"
 
-          echo "81b4bc734c18406bcfe250846157dd0b84ab6cb29712f76c1a636a850fce1d3a  $JAR" | sha256sum --check
+          echo "99d91a52fc3b4fc0340b6761639aacd98de6b3c5e5bfdce0dab991047c00910a  $JAR" | sha256sum --check
           echo "JAR do aplicativo localizado e verificado."
           ORIGINAL_JAR="$GITHUB_WORKSPACE/work/METEOR_CAFE_APK_DEDICADO/original/meteor_cafe_original.jar"
           test -f "$ORIGINAL_JAR"
@@ -195,7 +195,7 @@ jobs:
       - name: Disponibilizar APK para download
         uses: actions/upload-artifact@v6
         with:
-          name: Meteor-Cafe-APK-debug
+          name: Meteor-Cafe-APK-V8-debug
           path: work/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader/app/build/outputs/apk/meteor/debug/*.apk
           if-no-files-found: error
           retention-days: 7
