@@ -1,0 +1,24 @@
+# Android / Gradle
+.gradle/
+**/build/
+local.properties
+*.iml
+.idea/
+.DS_Store
+Thumbs.db
+
+# Signing material and local secrets
+*.jks
+*.keystore
+keystore.properties
+.env
+.env.*
+
+# Generated application packages (download from Actions/Release instead)
+*.apk
+*.aab
+*.dex
+
+# Local scratch files
+*.tmp
+*.log
