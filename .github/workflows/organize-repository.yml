@@ -1,0 +1,53 @@
+name: Organizar repositório METEOR CAFE
+
+"on":
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  organize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositório atual
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Aplicar pacote de organização
+        shell: bash
+        run: |
+          set -euo pipefail
+          BUNDLE="$GITHUB_WORKSPACE/METEOR_CAFE_REPO_UPDATE.zip"
+          if [ ! -f "$BUNDLE" ]; then
+            echo "::error::Envie METEOR_CAFE_REPO_UPDATE.zip para a raiz antes de executar este workflow."
+            exit 1
+          fi
+          unzip -tq "$BUNDLE"
+          mkdir -p "$RUNNER_TEMP/meteor-cafe-update"
+          unzip -q "$BUNDLE" -d "$RUNNER_TEMP/meteor-cafe-update"
+          test -f "$RUNNER_TEMP/meteor-cafe-update/README.md"
+          test -f "$RUNNER_TEMP/meteor-cafe-update/android/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader/gradlew"
+          cp -a "$RUNNER_TEMP/meteor-cafe-update/." "$GITHUB_WORKSPACE/"
+
+      - name: Remover ZIPs antigos e workflow temporário
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm -f --ignore-unmatch \
+            METEOR_CAFE_APK_DEDICADO_FONTE.zip \
+            METEOR_CAFE_APK_DEDICADO_FONTE_GALAXY_A05.zip \
+            METEOR_CAFE_APK_DEDICADO_FONTE_GALAXY_A05_V10.zip \
+            METEOR_CAFE_V8_KIT.zip \
+            METEOR_CAFE_REPO_UPDATE.zip
+          rm -f .github/workflows/organize-repository.yml
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nenhuma alteração detectada."
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit -m "Organize METEOR CAFE repository around stable 1.1.0"
+          git push origin HEAD:main
