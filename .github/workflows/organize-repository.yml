@@ -1,4 +1,4 @@
-name: Organizar repositório METEOR CAFE
+name: Organizar repositório METEOR CAFE — sem alterar workflows
 
 "on":
   workflow_dispatch:
@@ -8,46 +8,100 @@ permissions:
 
 jobs:
   organize:
+    name: Organizar arquivos e preservar a versão 1.1.0
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Baixar repositório atual
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - name: Aplicar pacote de organização
+      - name: Conferir e aplicar pacote de organização
         shell: bash
         run: |
           set -euo pipefail
           BUNDLE="$GITHUB_WORKSPACE/METEOR_CAFE_REPO_UPDATE.zip"
+          TEMP_DIR="$RUNNER_TEMP/meteor-cafe-update"
+
           if [ ! -f "$BUNDLE" ]; then
-            echo "::error::Envie METEOR_CAFE_REPO_UPDATE.zip para a raiz antes de executar este workflow."
+            echo "::error::METEOR_CAFE_REPO_UPDATE.zip não foi encontrado na raiz."
             exit 1
           fi
-          unzip -tq "$BUNDLE"
-          mkdir -p "$RUNNER_TEMP/meteor-cafe-update"
-          unzip -q "$BUNDLE" -d "$RUNNER_TEMP/meteor-cafe-update"
-          test -f "$RUNNER_TEMP/meteor-cafe-update/README.md"
-          test -f "$RUNNER_TEMP/meteor-cafe-update/android/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader/gradlew"
-          cp -a "$RUNNER_TEMP/meteor-cafe-update/." "$GITHUB_WORKSPACE/"
 
-      - name: Remover ZIPs antigos e workflow temporário
+          unzip -tq "$BUNDLE"
+          rm -rf "$TEMP_DIR"
+          mkdir -p "$TEMP_DIR"
+          unzip -q "$BUNDLE" -d "$TEMP_DIR"
+
+          test -f "$TEMP_DIR/README.md"
+          PROJECT_DIR="$TEMP_DIR/android/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader"
+          test -f "$PROJECT_DIR/gradlew"
+          test -f "$PROJECT_DIR/app/build.gradle"
+          test -f "$PROJECT_DIR/app/src/main/assets/games/meteor_cafe.jar"
+          test -f "$TEMP_DIR/android/METEOR_CAFE_APK_DEDICADO/original/meteor_cafe_original.jar"
+
+          # Copia todos os arquivos de apresentação, documentação e código,
+          # mas deixa .github intacto. O GITHUB_TOKEN não pode editar workflows.
+          while IFS= read -r -d '' ITEM; do
+            NAME="${ITEM##*/}"
+            if [ "$NAME" = ".github" ]; then
+              echo "Preservando .github existente (workflows protegidos)."
+              continue
+            fi
+            cp -a "$ITEM" "$GITHUB_WORKSPACE/"
+          done < <(find "$TEMP_DIR" -mindepth 1 -maxdepth 1 -print0)
+
+          # Confirma que a base escolhida é exatamente a versão aprovada.
+          echo "81b4bc734c18406bcfe250846157dd0b84ab6cb29712f76c1a636a850fce1d3a  $GITHUB_WORKSPACE/android/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader/app/src/main/assets/games/meteor_cafe.jar" | sha256sum --check
+          echo "a621bf0e11046aabb4ddcaa9c0c3d3a3aefa9340a415c2ce690ef977a394f8c6  $GITHUB_WORKSPACE/android/METEOR_CAFE_APK_DEDICADO/original/meteor_cafe_original.jar" | sha256sum --check
+          echo "Pacote aplicado; base METEOR CAFE 1.1.0 conferida."
+
+      - name: Remover ZIPs experimentais da raiz e preparar commit
         shell: bash
         run: |
           set -euo pipefail
-          git rm -f --ignore-unmatch \
-            METEOR_CAFE_APK_DEDICADO_FONTE.zip \
-            METEOR_CAFE_APK_DEDICADO_FONTE_GALAXY_A05.zip \
-            METEOR_CAFE_APK_DEDICADO_FONTE_GALAXY_A05_V10.zip \
-            METEOR_CAFE_V8_KIT.zip \
-            METEOR_CAFE_REPO_UPDATE.zip
-          rm -f .github/workflows/organize-repository.yml
+
+          # Apaga somente os pacotes ZIP temporários da raiz.
+          find "$GITHUB_WORKSPACE" -maxdepth 1 -type f \
+            \( -name 'METEOR_CAFE_APK_DEDICADO_FONTE*.zip' \
+            -o -name 'METEOR_CAFE_V8_KIT.zip' \
+            -o -name 'METEOR_CAFE_V10_KIT.zip' \
+            -o -name 'METEOR_CAFE_REPO_UPDATE*.zip' \) \
+            -print -delete
+
+          # Restaura qualquer diferença acidental em workflows antes do commit.
+          git restore --source=HEAD --staged --worktree -- .github/workflows
+
           git add -A
+
+          # Proteção extra: nenhum arquivo de workflow pode entrar neste commit.
+          if git diff --cached --name-only | grep -q '^\.github/workflows/'; then
+            echo "::error::O commit tentaria modificar um workflow. Operação cancelada por segurança."
+            git diff --cached --name-only | grep '^\.github/workflows/' || true
+            exit 1
+          fi
+
           if git diff --cached --quiet; then
-            echo "Nenhuma alteração detectada."
+            echo "Nenhuma alteração nova para enviar."
             exit 0
           fi
+
           git -c user.name='github-actions[bot]' \
               -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
-              commit -m "Organize METEOR CAFE repository around stable 1.1.0"
+              commit -m "Organize METEOR CAFE around stable 1.1.0"
+
           git push origin HEAD:main
+
+      - name: Resumo da organização
+        if: success()
+        run: |
+          {
+            echo "## Organização concluída"
+            echo "- Base preservada: **METEOR CAFE 1.1.0**"
+            echo "- Logo e nome original preservados."
+            echo "- README, documentação, screenshots e fonte organizados."
+            echo "- ZIPs experimentais removidos da raiz."
+            echo "- Workflows existentes foram mantidos sem alteração por segurança."
+            echo "- Próximo passo manual: atualizar \\.github/workflows/build-meteor.yml usando docs/build-meteor-1.1.0.yml e remover organize-repository.yml após conferir o resultado."
+          } >> "$GITHUB_STEP_SUMMARY"
