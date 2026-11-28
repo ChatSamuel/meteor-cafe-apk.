@@ -2,16 +2,21 @@
 
 ## Download the APK
 
-1. Open the [Meteor Cafe Android build workflow](https://github.com/ChatSamuel/meteor-cafe-apk/actions/workflows/build-meteor.yml).
-2. Select the latest run marked **Success**.
-3. In **Artifacts**, download `METEOR-CAFE-1.1.0-ANDROID`.
-4. Extract the downloaded ZIP archive. The installer is `METEOR_CAFE_1.1.0.apk`.
+1. Open the repository's [Actions page](https://github.com/ChatSamuel/meteor-cafe-apk/actions).
+2. Select **Compilar METEOR CAFE 1.1.0**.
+3. Open the most recent run marked **Success**.
+4. Under **Artifacts**, download **METEOR-CAFE-1.1.0-ANDROID**.
+5. Extract the downloaded ZIP archive. The installer is `METEOR_CAFE_1.1.0.apk`.
+
+If there is no successful run or the artifact has expired, use **Run workflow** on the build workflow. When the new run finishes successfully, download its artifact from the same page.
+
+GitHub Actions artifacts are temporary and follow the retention period configured in the workflow.
 
 ## Install
 
 1. Open the APK with the Android file manager.
-2. When prompted, allow installation from that source.
-3. Return to the installer and confirm.
+2. When Android asks, allow installation from the app used to open the file.
+3. Return to the installer and confirm the installation.
 4. Launch **Meteor Cafe** from the app list.
 
 ## Updating an existing installation
@@ -20,4 +25,4 @@ Android permits an in-place update only when the package identifier and signing 
 
 ## Build artifacts
 
-GitHub Actions artifacts are temporary and follow the retention period configured in the workflow. The workflow page shows the available builds and their expiration dates.
+The build artifact is published by GitHub Actions. Its availability and expiration date are shown on the corresponding workflow run.
