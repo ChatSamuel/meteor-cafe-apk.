@@ -3,7 +3,9 @@ name: Apply English Documentation Update
 on:
   push:
     paths:
-      - METEOR_CAFE_ENGLISH_DOCUMENTATION_UPDATE.zip
+      - 'METEOR_CAFE_ENGLISH_DOCUMENTATION_UPDATE.zip'
+      - '**/METEOR_CAFE_ENGLISH_DOCUMENTATION_UPDATE.zip'
+      - '.github/workflows/apply-english-docs.yml'
   workflow_dispatch:
 
 permissions:
@@ -16,21 +18,85 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Locate documentation package
+        id: locate-package
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive_name='METEOR_CAFE_ENGLISH_DOCUMENTATION_UPDATE.zip'
+          mapfile -t archives < <(find . -type f -name "$archive_name" -not -path './.git/*' -print)
+
+          if [ "${#archives[@]}" -eq 0 ]; then
+            echo "ERROR: $archive_name was not found in the repository."
+            echo "Upload the ZIP to the repository (root folder is recommended), commit it, and run this workflow again."
+            echo "ZIP files currently present:"
+            find . -type f -iname '*.zip' -not -path './.git/*' -print || true
+            exit 1
+          fi
+
+          if [ "${#archives[@]}" -gt 1 ]; then
+            echo "ERROR: More than one copy of $archive_name was found. Keep only one copy and run again."
+            printf '%s\n' "${archives[@]}"
+            exit 1
+          fi
+
+          archive_path="${archives[0]#./}"
+          echo "DOCS_ARCHIVE=$archive_path" >> "$GITHUB_ENV"
+          echo "Documentation package found: $archive_path"
+
       - name: Extract documentation package
         shell: bash
         run: |
           set -euo pipefail
-          archive="METEOR_CAFE_ENGLISH_DOCUMENTATION_UPDATE.zip"
-          test -f "$archive"
-          mkdir -p "$RUNNER_TEMP/meteor-cafe-docs"
-          unzip -q "$archive" -d "$RUNNER_TEMP/meteor-cafe-docs"
+          destination="$RUNNER_TEMP/meteor-cafe-docs"
+          mkdir -p "$destination"
+
+          python3 - "$DOCS_ARCHIVE" "$destination" <<'PY'
+          import pathlib
+          import shutil
+          import sys
+          import zipfile
+
+          archive = pathlib.Path(sys.argv[1])
+          destination = pathlib.Path(sys.argv[2]).resolve()
+
+          if not archive.is_file():
+              raise SystemExit(f"Documentation package not found: {archive}")
+
+          try:
+              with zipfile.ZipFile(archive) as package:
+                  files = [item for item in package.infolist() if not item.is_dir()]
+                  if not files:
+                      raise SystemExit("The documentation ZIP is empty.")
+
+                  for item in files:
+                      relative = pathlib.PurePosixPath(item.filename)
+                      if relative.is_absolute() or ".." in relative.parts:
+                          raise SystemExit(f"Unsafe path inside ZIP: {item.filename}")
+                      if relative.as_posix() == "APPLY_UPDATE.md":
+                          continue
+
+                      target = (destination / pathlib.Path(*relative.parts)).resolve()
+                      if destination not in target.parents:
+                          raise SystemExit(f"Unsafe destination path: {item.filename}")
+
+                      target.parent.mkdir(parents=True, exist_ok=True)
+                      with package.open(item) as source, target.open("wb") as output:
+                          shutil.copyfileobj(source, output)
+          except zipfile.BadZipFile as error:
+              raise SystemExit(f"The uploaded file is not a valid ZIP archive: {error}")
+
+          print(f"Extracted {len(files)} package entries into {destination}")
+          PY
 
       - name: Apply documentation files
         shell: bash
         run: |
           set -euo pipefail
-          rsync -a --exclude='APPLY_UPDATE.md' "$RUNNER_TEMP/meteor-cafe-docs/" ./
-          rm -f METEOR_CAFE_ENGLISH_DOCUMENTATION_UPDATE.zip
+          source="$RUNNER_TEMP/meteor-cafe-docs"
+          cp -a "$source/." ./
+          rm -f -- "$DOCS_ARCHIVE"
+          echo "Documentation files copied into the repository."
 
       - name: Commit documentation changes
         shell: bash
@@ -39,9 +105,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
+
           if git diff --cached --quiet; then
-            echo "No documentation changes to apply."
+            echo "No changes to commit."
             exit 0
           fi
+
           git commit -m "Update Meteor Cafe documentation in English"
           git push
