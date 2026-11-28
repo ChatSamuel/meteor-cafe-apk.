@@ -1,81 +1,77 @@
 <div align="center">
-  <img src="assets/brand/meteor-cafe-original-launcher-icon.png" width="144" alt="Logotipo original de Meteor Cafe" />
+  <img src="assets/brand/meteor-cafe-original-launcher-icon.png" width="144" alt="Meteor Cafe original logo" />
   <h1>METEOR CAFE</h1>
-  <p><strong>Preservação digital · Java ME · Android</strong></p>
-  <p>Um projeto independente para preservar e executar Meteor Cafe em dispositivos Android modernos.</p>
+  <p><strong>Digital preservation · Java ME · Android</strong></p>
+  <p>A Java ME classic, preserved for modern Android devices.</p>
   <p>
     <a href="https://github.com/ChatSamuel/meteor-cafe-apk/actions/workflows/build-meteor.yml">
-      <img src="https://img.shields.io/badge/BAIXAR_APK-Compila%C3%A7%C3%A3o_no_GitHub_Actions-238636?style=for-the-badge&logo=android&logoColor=white" alt="Acessar compilação e download do APK" />
+      <img src="https://img.shields.io/badge/ANDROID_BUILD-Download_from_Actions-238636?style=for-the-badge&logo=android&logoColor=white" alt="Download the Android build" />
     </a>
     <a href="https://github.com/ChatSamuel/meteor-cafe-apk/actions/workflows/build-meteor.yml">
-      <img src="https://img.shields.io/badge/Build-GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" alt="GitHub Actions" />
+      <img src="https://img.shields.io/badge/BUILD-GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" alt="GitHub Actions" />
     </a>
-    <img src="https://img.shields.io/badge/Base_est%C3%A1vel-1.1.0-blue?style=for-the-badge" alt="Base estável 1.1.0" />
+    <img src="https://img.shields.io/badge/ANDROID_VERSION-1.1.0-blue?style=for-the-badge" alt="Android version 1.1.0" />
   </p>
 </div>
 
 ---
 
-## Sobre o projeto
+## About
 
-Este repositório documenta um trabalho independente de preservação e compatibilidade de **Meteor Cafe**, jogo originalmente distribuído para celulares Java ME. O objetivo é executá-lo em um aplicativo Android dedicado, usando o runtime do [J2ME-Loader](https://github.com/nikita36078/J2ME-Loader) e preservando o máximo possível da experiência original.
+**Meteor Cafe** is a café-management game originally released for Java ME mobile phones. This project preserves the original game experience in a dedicated Android application, using the J2ME-Loader runtime as its compatibility layer.
 
-A base de referência é a **segunda versão dedicada aprovada: 1.1.0 (`versionCode 2`)**. Ela foi instalada e testada pelo responsável pelo projeto em um Samsung Galaxy A05.
+The work focuses on keeping the original game intact: its gameplay, visual assets, music, sound effects, logo and overall presentation remain the reference for the Android version.
 
-> **Versão preservada:** o aplicativo continua exibindo o nome **Meteor Cafe** e utiliza o logotipo original fornecido com o jogo. Não usamos “Debug” ou “Teste” como nome de aplicativo.
-
-## Baixar e instalar
+## Download
 
 <div align="center">
   <a href="https://github.com/ChatSamuel/meteor-cafe-apk/actions/workflows/build-meteor.yml">
-    <img src="https://img.shields.io/badge/CLIQUE_AQUI_PARA_BAIXAR-APK_ANDROID-2EA44F?style=for-the-badge&logo=android&logoColor=white" alt="Clique aqui para acessar o APK Android" />
+    <img src="https://img.shields.io/badge/OPEN_ANDROID_BUILDS-Download_APK-2EA44F?style=for-the-badge&logo=android&logoColor=white" alt="Open Android builds" />
   </a>
 </div>
 
-1. Abra o workflow **Compilar METEOR CAFE 1.1.0** no GitHub Actions.
-2. Entre na execução mais recente com status verde (**Success**).
-3. Na seção **Artifacts**, baixe `METEOR-CAFE-1.1.0-ANDROID`.
-4. Extraia o ZIP baixado e abra `METEOR_CAFE_1.1.0.apk` no Android.
-5. Se o Android solicitar, autorize temporariamente a instalação de aplicativos pelo navegador/gerenciador de arquivos usado para abrir o APK.
+1. Open the [Meteor Cafe Android build workflow](https://github.com/ChatSamuel/meteor-cafe-apk/actions/workflows/build-meteor.yml).
+2. Select the latest successful run.
+3. Find the **Artifacts** section and download `METEOR-CAFE-1.1.0-ANDROID`.
+4. Extract the downloaded archive and open `METEOR_CAFE_1.1.0.apk` on your Android device.
+5. Approve installation from the file manager or browser when Android requests permission.
 
-Consulte [`docs/INSTALLATION.md`](docs/INSTALLATION.md) para instruções e solução de problemas.
+The workflow page contains the available build artifacts. See [Installation](docs/INSTALLATION.md) for the full instructions.
 
-**Sobre o download:** o botão leva às compilações do GitHub Actions. O APK fica disponível como artefato temporário da execução; ainda não há Release pública permanente. A publicação de uma Release deve aguardar a verificação dos direitos e o contato com os titulares do jogo.
-
-## Capturas do Galaxy A05
+## Screenshots
 
 <div align="center">
-  <img src="screenshots/gameplay-galaxy-a05-portrait.jpg" width="32%" alt="Meteor Cafe em gameplay vertical no Samsung Galaxy A05" />
-  <img src="screenshots/menu-galaxy-a05-portrait.jpg" width="32%" alt="Menu de Meteor Cafe no Samsung Galaxy A05" />
+  <img src="screenshots/gameplay-galaxy-a05-portrait.jpg" width="32%" alt="Meteor Cafe gameplay on a Samsung Galaxy A05" />
+  <img src="screenshots/menu-galaxy-a05-portrait.jpg" width="32%" alt="Meteor Cafe menu on a Samsung Galaxy A05" />
 </div>
 
-As imagens são capturas reais fornecidas durante os testes do aplicativo no Galaxy A05.
+These screenshots were captured during testing on a Samsung Galaxy A05.
 
-## O que inclui a base 1.1.0
+## Android version 1.1.0
 
-- Aplicativo Android dedicado que inicia diretamente Meteor Cafe.
-- Nome exibido no launcher: **Meteor Cafe**.
-- Logotipo original mantido no ícone do aplicativo.
-- Canvas original de 240 × 320, com preservação de proporção.
-- Extensão de fundo suavizada para aproveitar melhor a tela alta do Galaxy A05, sem esticar os sprites.
-- Ajuste vertical de **+8 pixels lógicos** nos quatro botões coloridos e nos respectivos alvos de toque.
-- JAR original preservado separadamente e hashes SHA-256 conferidos.
+- Dedicated Android application that opens Meteor Cafe directly.
+- Original application name and game logo retained.
+- Original Java ME canvas dimensions and aspect ratio preserved.
+- Portrait layout centered on the Samsung Galaxy A05 display.
+- Soft background extension fills unused screen space without stretching the playable area.
+- A small vertical adjustment was applied to the four coloured order buttons and their touch targets.
+- The untouched original JAR is retained separately for reference and integrity checks.
 
-## Compatibilidade e limitações conhecidas
+## Compatibility
 
-| Item | Situação |
+| Device or feature | Status |
 |---|---|
-| Samsung Galaxy A05, orientação retrato | Testado pelo responsável pelo projeto |
-| Canvas e proporção original | Preservados |
-| Fundo preto excedente | Substituído por extensão visual suavizada |
-| Ícone original e nome Meteor Cafe | Mantidos |
-| Espaçamento dos botões coloridos | Ajuste inicial aplicado; refinamento ainda desejado |
-| Orientação paisagem | Não faz parte da base estável 1.1.0 |
-| Outros aparelhos Android | Ainda não verificados de forma abrangente |
+| Samsung Galaxy A05 · portrait | Tested |
+| Original 240 × 320 canvas proportions | Preserved |
+| Game sprites and logical play area | Not stretched |
+| Original app logo and title | Retained |
+| Four coloured order buttons | Initial spacing adjustment applied |
+| Landscape orientation | Not included in version 1.1.0 |
+| Other Android devices | Not yet broadly verified |
 
-A área lógica original do jogo é menor que a tela física moderna. A extensão do fundo preenche o espaço externo; ela não amplia automaticamente a área de gameplay nem estica personagens, mesas ou controles.
+The original game uses a 240 × 320 canvas, with a 240 × 268 logical play area centered inside it. The Android display is larger, so the unused outer space is filled visually. The game itself is not expanded or distorted to match the phone's full height.
 
-## Estrutura do repositório
+## Repository layout
 
 ```text
 .
@@ -86,36 +82,31 @@ A área lógica original do jogo é menor que a tela física moderna. A extensã
 ├── SECURITY.md
 ├── android/
 │   └── METEOR_CAFE_APK_DEDICADO/
-│       ├── original/                 # JAR original preservado
-│       └── vendor/J2ME-Loader/       # projeto Android e runtime
-├── assets/brand/                     # ícones e identidade original
-├── screenshots/                      # capturas do Galaxy A05
-├── docs/                             # instalação, build, técnica e créditos
+│       ├── original/             # Untouched original game JAR
+│       └── vendor/J2ME-Loader/   # Android runtime and dedicated launcher
+├── assets/brand/                 # Original app identity assets
+├── screenshots/                  # Device screenshots
+├── docs/                         # Installation, build, technical notes and credits
 └── .github/workflows/
     └── build-meteor.yml
 ```
 
-O código do projeto Android fica navegável diretamente na pasta `android/`; não é necessário abrir um ZIP aninhado para consultar os arquivos-fonte.
+The Android source is available directly under `android/`; there is no need to unpack a nested source archive to browse it.
 
-## Compilação
+## Build
 
-O workflow prepara Java 21, Android SDK, Build Tools e NDK requeridos pelo projeto, restaura a dependência TinySoundFont e executa a variante Android `meteorDebug`. O tipo `debug` é uma configuração interna de assinatura de desenvolvimento; **o nome exibido do aplicativo permanece Meteor Cafe** e o artefato é renomeado para `METEOR_CAFE_1.1.0.apk`.
+The repository workflow prepares the required Java, Android SDK, Build Tools and NDK components, restores the TinySoundFont dependency, checks the game JAR hashes and builds the dedicated Android variant.
 
-Veja [`docs/BUILD.md`](docs/BUILD.md) e [`docs/TECHNICAL.md`](docs/TECHNICAL.md).
+Build instructions and environment details are documented in [Build](docs/BUILD.md). Architecture and game compatibility notes are available in [Technical notes](docs/TECHNICAL.md). The release signing and Android security process is documented in [Android Security and Distribution](docs/ANDROID_SECURITY_AND_TRUST.md).
 
-## Créditos e direitos
+## Original credits
 
-Os créditos encontrados no JAR analisado identificam **3 Dynamics (Asia) Limited** como desenvolvedora/produtora e **THQ** como distribuidora. O manifesto registra `MIDlet-Vendor: THQ` e `Created-By: Metaflow`. Esse último campo não comprova que Metaflow seja o titular ou desenvolvedor legal do jogo. O titular atual dos direitos ainda não foi verificado.
+The in-game credits identify **3 Dynamics (Asia) Limited** as the developer and producer, and **THQ** as the distributor. Corporate records document the later acquisition of 3 Dynamics by the group now known as **Century Energy International Holdings Limited**. The available records establish the company acquisition history; they do not, by themselves, establish the present ownership of the copyright in Meteor Cafe.
 
-Meteor Cafe, seu logotipo, personagens, músicas, gráficos e JAR original são conteúdo de terceiros. Este repositório não reivindica propriedade sobre esses elementos nem afirma possuir autorização de redistribuição. Leia [`NOTICE.md`](NOTICE.md) e [`docs/CREDITS_AND_RIGHTS.md`](docs/CREDITS_AND_RIGHTS.md).
-
-## Contribuições
-
-Relatos de compatibilidade, documentação e melhorias técnicas são bem-vindos. Consulte [`CONTRIBUTING.md`](CONTRIBUTING.md) antes de abrir uma contribuição. Não envie tokens, senhas, chaves de assinatura ou outros dados sensíveis.
+See [Credits and rights](docs/CREDITS_AND_RIGHTS.md) for the source records and full attribution.
 
 ---
 
 <div align="center">
-  <strong>Preservar. Compatibilizar. Documentar.</strong><br />
-  <sub>Projeto independente de preservação; sem afiliação ou endosso declarado pelos titulares do jogo.</sub>
+  <strong>Preserving the game. Keeping its history visible.</strong>
 </div>

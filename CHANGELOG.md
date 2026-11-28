@@ -1,12 +1,13 @@
-# Histórico de versões
+# Changelog
 
-## 1.1.0 — base estável preservada
+## 1.1.0 — Android application
 
-- Aplicativo Android dedicado com o nome exibido **Meteor Cafe**.
-- Logotipo original mantido no ícone.
-- Canvas Java ME original 240 × 320 e proporções preservadas.
-- Fundo externo suavizado para a tela alta do Galaxy A05.
-- Ajuste vertical de +8 px lógicos nos quatro botões coloridos e em seus alvos de toque.
-- JAR original mantido separadamente para referência e conferência de integridade.
+- Added a dedicated Android application that launches Meteor Cafe directly.
+- Retained the original app title and logo.
+- Preserved the original 240 × 320 Java ME canvas proportions.
+- Centered the game on the Samsung Galaxy A05 in portrait orientation.
+- Added a soft visual background extension around the original play area.
+- Adjusted the vertical position of the four coloured order buttons and their touch targets by 8 logical pixels.
+- Kept an untouched copy of the original game JAR for reference and integrity checks.
 
-As versões experimentais V8, V9 e V10 não são tratadas como versões oficiais deste repositório.
+Earlier development builds are not listed as public product releases.

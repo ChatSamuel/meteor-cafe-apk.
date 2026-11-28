@@ -1,16 +1,16 @@
-# Como contribuir
+# Contributing
 
-Contribuições de documentação, compatibilidade e testes são bem-vindas.
+Contributions that improve documentation, compatibility, build reliability or device coverage are welcome.
 
-## Antes de abrir uma contribuição
+## Before submitting a change
 
-- Leia `README.md`, `docs/TECHNICAL.md` e `docs/STATUS.md`.
-- Preserve a base estável 1.1.0; mudanças experimentais devem ser isoladas e descritas.
-- Não altere o JAR original nem o logotipo sem documentar a razão e manter cópia/hash de referência.
-- Ao mover sprites/controles, confira também os respectivos alvos de toque.
-- Não faça commits com chaves de assinatura, senhas, tokens, arquivos `local.properties` ou dados pessoais.
-- Não envie novas cópias do JAR ou de assets proprietários sem esclarecer a autorização aplicável.
+- Read `README.md`, `NOTICE.md` and the relevant files under `docs/`.
+- Keep the original game assets and the untouched reference JAR unchanged.
+- When modifying controls, update and test the corresponding touch areas as well as their visual positions.
+- Keep Android-specific changes isolated and describe their effect on the original game experience.
+- Do not commit signing keys, passwords, access tokens, `local.properties` files or personal data.
+- Do not add additional copies of proprietary game assets without documenting their source and the applicable permission.
 
-## Relatos de problemas
+## Bug reports
 
-Inclua aparelho, versão Android, versão do APK, passos para reproduzir e capturas de tela. Nunca envie dados pessoais ou logs que contenham identificadores privados.
+Include the Android device model, Android version, application version, steps to reproduce the issue and screenshots where useful. Remove account details, device identifiers and other personal information from logs before sharing them.

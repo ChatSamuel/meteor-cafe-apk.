@@ -1,19 +1,19 @@
-# Avisos de direitos e componentes de terceiros
+# Notices and third-party components
 
 ## Meteor Cafe
 
-O jogo Meteor Cafe, seu JAR, logotipo, personagens, gráficos, músicas, efeitos e demais recursos originais são conteúdo de terceiros. Os créditos observados no JAR identificam 3 Dynamics (Asia) Limited como desenvolvedora/produtora e THQ como distribuidora; o manifesto registra `MIDlet-Vendor: THQ` e `Created-By: Metaflow`. O titular atual ainda não foi confirmado.
+The original **Meteor Cafe** game is credited in its in-game credits to **3 Dynamics (Asia) Limited** as developer and producer, and **THQ** as distributor. The game credits display © 2010. The original Java ME JAR, logo, characters, graphics, music, sound effects and other game assets are part of the original work.
 
-Este projeto não afirma ser o proprietário do jogo e não concede licença sobre os elementos originais. O projeto foi criado para estudo, preservação e compatibilidade. Será solicitado consentimento ao titular atual antes de uma Release pública permanente do APK.
+This repository documents an independent preservation and Android compatibility project. It does not claim authorship of the original game or grant a licence to the game's original assets. The historical corporate acquisition of 3 Dynamics is documented in [Credits and rights](docs/CREDITS_AND_RIGHTS.md); the available public records do not establish whether copyright in Meteor Cafe was separately assigned or who currently controls every relevant right.
 
 ## J2ME-Loader
 
-O runtime J2ME-Loader utilizado neste projeto é licenciado sob Apache License 2.0. A cópia do texto de licença e os avisos upstream são mantidos no pacote-fonte, em `vendor/J2ME-Loader/LICENSE` e `vendor/J2ME-Loader/THIRD_PARTY_NOTICES.md`. Projeto upstream: https://github.com/nikita36078/J2ME-Loader.
+The Android application incorporates the J2ME-Loader runtime. Its upstream project is available at <https://github.com/nikita36078/J2ME-Loader>. The runtime is distributed under the Apache License, Version 2.0. The full licence text and upstream notices are retained in `android/METEOR_CAFE_APK_DEDICADO/vendor/J2ME-Loader/LICENSE` and `THIRD_PARTY_NOTICES.md`.
 
 ## TinySoundFont
 
-O J2ME-Loader declara TinySoundFont como submódulo. O workflow restaura o repositório upstream durante a compilação. TinySoundFont é distribuído sob MIT; seus avisos/licença devem ser mantidos quando o submódulo for restaurado. Projeto upstream: https://github.com/schellingb/TinySoundFont.
+The J2ME-Loader project references TinySoundFont as a Git submodule. The build workflow restores it from <https://github.com/schellingb/TinySoundFont>. TinySoundFont is distributed under the MIT License; its licence and copyright notice must accompany the restored source.
 
-## Licença do repositório
+## Repository licensing
 
-Não há uma licença única neste momento que cubra todo o conteúdo do repositório. A licença Apache 2.0 do runtime J2ME-Loader não se estende ao jogo Meteor Cafe nem ao seu logotipo. Não interprete o README ou os workflows como autorização para redistribuir material de terceiros.
+No single open-source licence is applied to every item in this repository. The J2ME-Loader runtime, TinySoundFont, the Android adaptation and the original Meteor Cafe materials have separate origins and licensing terms. The Apache-2.0 licence for J2ME-Loader does not extend to Meteor Cafe or its original assets.
